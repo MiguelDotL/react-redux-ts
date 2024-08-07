@@ -1,34 +1,53 @@
 import React from 'react';
+import { fetchTodos, deleteTodo, Todo } from '../actions';
+import { StoreState } from '../reducers';
+import { connect } from 'react-redux';
 
 interface AppProps {
-    color?: string;
+    todos: Todo[];
+    fetchTodos: Function; // typeof fetchTodos;
+    deleteTodo: typeof deleteTodo;
 }
 
-interface AppState {
-    counter: number;
-}
+// interface AppState {
+//     todos: Todo[]
+// }
 
-export class App extends React.Component<AppProps, AppState> {
-    constructor(props: AppProps) {
-        super(props);
-        this.state = { counter: 0 };
-    }
-
-    onIncrement = (): void => {
-        this.setState((prevState) => ({ counter: prevState.counter + 1 }));
+class _App extends React.Component<AppProps> {
+    onButtonClick = (): void => {
+        this.props.fetchTodos();
     };
 
-    onDecrement = () => {
-        this.setState((prevState) => ({ counter: prevState.counter - 1 }));
+    onTodoClick = (id: number): void => {
+        this.props.deleteTodo(id);
+    };
+
+    renderList = (): JSX.Element[] => {
+        return this.props.todos.map((todo, index) => {
+            return (
+                <div key={todo.id} onClick={() => this.onTodoClick(todo.id)}>
+                    {index + ') ' + todo.title}
+                </div>
+            );
+        });
     };
 
     render() {
+        console.log(this.props.todos);
         return (
             <div>
-                <button onClick={this.onIncrement}> Increment </button>
-                <button onClick={this.onDecrement}> Decrement </button>
-                {this.state.counter}
+                <button onClick={this.onButtonClick}> Fetch </button>
+                {this.renderList()}
             </div>
         );
     }
 }
+
+// const mapStateToProps = (state: StoreState): {todos: Todo[]} => {
+//     return { todos: state.todos }
+// }
+const mapStateToProps = ({ todos }: StoreState): { todos: Todo[] } => {
+    return { todos }; // { todos: state.todos }
+};
+
+export const App = connect(mapStateToProps, { fetchTodos, deleteTodo })(_App);
