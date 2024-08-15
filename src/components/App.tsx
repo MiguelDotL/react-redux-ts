@@ -9,12 +9,28 @@ interface AppProps {
     deleteTodo: typeof deleteTodo;
 }
 
-// interface AppState {
-//     todos: Todo[]
-// }
+interface AppState {
+    fetching: boolean;
+}
 
-class _App extends React.Component<AppProps> {
+class _App extends React.Component<AppProps, AppState> {
+    constructor(props: AppProps) {
+        super(props);
+        this.state = { fetching: false };
+    }
+
+    componentDidUpdate(
+        prevProps: Readonly<AppProps>,
+        prevState: Readonly<AppState>
+    ): void {
+        // if (!prevProps.todos.length && this.props.todos.length) {
+        if (prevProps.todos !== this.props.todos) {
+            this.setState({ ...prevState, fetching: false });
+        }
+    }
+
     onButtonClick = (): void => {
+        this.setState({ fetching: true });
         this.props.fetchTodos();
     };
 
@@ -23,6 +39,7 @@ class _App extends React.Component<AppProps> {
     };
 
     renderList = (): JSX.Element[] => {
+        // this.setState({ fetching: false });
         return this.props.todos.map((todo, index) => {
             return (
                 <div key={todo.id} onClick={() => this.onTodoClick(todo.id)}>
@@ -33,10 +50,11 @@ class _App extends React.Component<AppProps> {
     };
 
     render() {
-        console.log(this.props.todos);
+        // console.log(this.props.todos);
         return (
             <div>
                 <button onClick={this.onButtonClick}> Fetch </button>
+                {this.state.fetching ? 'Loading...' : null}
                 {this.renderList()}
             </div>
         );
